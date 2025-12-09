@@ -107,18 +107,8 @@
             <div style="display: grid; gap: 20px;">
                 <!-- Categorias -->
                 <div class="card">
-                    <div class="card-title" style="margin-bottom: 20px;">Categorias de gastos</div>
-                    <canvas id="pieChart"></canvas>
-                    <div class="pie-legend">
-                        <div class="legend-item">
-                            <div class="legend-dot" style="background: #7ec8c1;"></div>
-                            <span>Essenciais</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-dot" style="background: #8b8b8b;"></div>
-                            <span>Não essenciais</span>
-                        </div>
-                    </div>
+                    <div class="card-title" style="margin-bottom: 20px;">Gastos por categoria</div>
+                    <canvas id="categoryPieChart"></canvas>
                 </div>
             </div>
         </div>
@@ -138,24 +128,28 @@
             img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
         }
 
-        // Pie Chart
-        const pieCtx = document.getElementById('pieChart').getContext('2d');
-        new Chart(pieCtx, {
+        // Category Pie Chart
+        const categoryPieCtx = document.getElementById('categoryPieChart').getContext('2d');
+        const categoryPieData = {
+            labels: {{ labels|safe|default:"[]" }},
+            datasets: [{
+                data: {{ values|safe|default:"[]" }},
+                backgroundColor: {{ colors|safe|default:"[]" }},
+                borderColor: 'white',
+                borderWidth: 2
+            }]
+        };
+
+        new Chart(categoryPieCtx, {
             type: 'doughnut',
-            data: {
-                datasets: [{
-                    data: [{{percentual_gastos_essenciais|default:"70"}}, {{percentual_gastos_nao_essenciais|default:"30"}}],
-                    backgroundColor: ['#7ec8c1', '#8b8b8b'],
-                    borderColor: 'white',
-                    borderWidth: 3
-                }]
-            },
+            data: categoryPieData,
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    legend: {
-                        display: false
+                    legend: { 
+                        display: true,
+                        position: 'bottom'
                     }
                 }
             }

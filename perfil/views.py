@@ -95,9 +95,10 @@ def landing(request):
 @login_required(login_url='login')
 def home(request):
     current_year = datetime.now().year
+    current_month = datetime.now().month
     meses_labels, entradas_data, gastos_data = get_evolution_data(current_year)
 
-    valores = Valores.objects.filter(data__month=datetime.now().month)
+    valores = Valores.objects.filter(data__month=current_month)
     entradas = valores.filter(tipo='E')
     saidas = valores.filter(tipo='S')
 
@@ -112,6 +113,24 @@ def home(request):
 
     percentual_gastos_essenciais, percentual_gastos_nao_essenciais = calcula_equilibrio_financeiro()
 
+    # Gastos por categoria (mês atual)
+    queryset = Valores.objects.filter(data__year=current_year, data__month=current_month, tipo='S')
+    agg = queryset.values('categoria__categoria').annotate(total=Sum('valor')).order_by('-total')
+
+    labels = []
+    values = []
+    for item in agg:
+        labels.append(item['categoria__categoria'] or 'Sem categoria')
+        total = item['total'] or 0
+        try:
+            values.append(float(total))
+        except Exception:
+            values.append(0.0)
+
+    # generate colors (cycle palette)
+    palette = ['#10B981', '#06b6d4', '#f97316', '#ef4444', '#60a5fa', '#7c3aed', '#f59e0b', '#14b8a6']
+    colors = [palette[i % len(palette)] for i in range(len(labels))]
+
     return render(request, 'home.html', {
         'contas' : contas, 
         'total_contas' : total_contas,
@@ -124,13 +143,23 @@ def home(request):
         'entradas_data': entradas_data,
         'gastos_data': gastos_data,
         'selected_year': current_year,
+        'labels': labels,
+        'values': values,
+        'colors': colors,
         })
 
 def gerenciar(request):
     contas = Conta.objects.all()
     categorias = Categorias.objects.all()
     total_contas = calcula_total(contas, 'valor')
-    return render(request, 'gerenciar.html', { 'contas' : contas, 'total_contas' : total_contas, 'categorias' : categorias})
+    valores = Valores.objects.select_related('categoria', 'conta').order_by('-data')
+
+    return render(request, 'gerenciar.html', {
+        'contas' : contas,
+        'total_contas' : total_contas,
+        'categorias' : categorias,
+        'valores': valores,
+    })
 
 def cadastrar_banco(request):
     apelido = request.POST.get('apelido')
@@ -538,7 +567,18 @@ def editar_perfil(request):
         request.user.email = request.POST.get('email', '')
         request.user.save()
         
+        # Atualiza foto de perfil se enviada
+        foto_file = request.FILES.get('foto_perfil')
+        if foto_file:
+            user_profile.foto_perfil = foto_file
+
         user_profile.bio = request.POST.get('bio', '')
+        user_profile.telefone = request.POST.get('telefone', '')
+        user_profile.data_nascimento = request.POST.get('data_nascimento') or None
+        user_profile.cpf = request.POST.get('cpf', '')
+        user_profile.endereco = request.POST.get('endereco', '')
+        user_profile.cidade = request.POST.get('cidade', '')
+        user_profile.estado = request.POST.get('estado', '')
         user_profile.save()
         
         messages.add_message(request, constants.SUCCESS, 'Perfil atualizado com sucesso!')
