@@ -1,0 +1,14 @@
+{% load static %}
+<div class="sidebar">
+    <a class="sidebar-icon" href="{% url 'perfil' %}" title="Perfil"><img id="userAvatar" src="{% static 'perfil/img/user-avatar.svg' %}" alt="Avatar"></a>
+    <a class="sidebar-icon" href="{% url 'home' %}" title="Página inicial"><img src="{% static 'perfil/img/pagina-inicial.png' %}" alt="Página inicial"></a>
+    <a class="sidebar-icon" href="{% url 'gerenciar' %}" title="Carteira"><img src="{% static 'perfil/img/carteira.svg' %}" alt="Carteira"></a>
+    <a class="sidebar-icon" href="{% url 'categorias' %}" title="Categorias"><img src="{% static 'perfil/img/categorias.png' %}" alt="Categorias"></a>
+    <a class="sidebar-icon" href="{% url 'relatorios' %}" title="Relatórios"><img src="{% static 'perfil/img/relatorios.png' %}" alt="Relatórios"></a>
+    <a class="sidebar-icon metas-icon" href="{% url 'definir_planejamento' %}" title="Planejamento"><img src="{% static 'perfil/img/planejamento-white.png' %}" alt="Planejamento"></a>
+    <a class="sidebar-icon" href="{% url 'dashboard' %}" title="Dashboard"><img src="{% static 'perfil/img/numus-champions.png' %}" alt="Dashboard"></a>
+    <a class="sidebar-icon" href="{% url 'configuracoes' %}" title="Configurações"><img src="{% static 'perfil/img/configuracoes.png' %}" alt="Configurações"></a>
+</div>
+
+
+

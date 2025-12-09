@@ -1,162 +1,219 @@
-{% extends 'bases/base.html' %}
-{%  load static %}
-{% block 'head' %}
-    <link href="{% static 'perfil/css/home.css' %}" rel="stylesheet">
-{% endblock %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial - NUMUS</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{% static 'perfil/css/home.css' %}">
+</head>
 
-{% block 'body' %}
-    <div class="container">
-        <br>
-        <br>
-        <div class="row">
-            <div class="col-md-3">
-                <a style="text-decoration: none; color:white;" href="{% url 'novo_valor' %}">
-                    <div class="card">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <span  class="fonte-destaque">RS {{total_entradas}}</span>
-                            </div>
-                            <div class="col-md">
-                                <img class="icone-setas" src="{% static 'perfil/img/entradas.png' %}">
-                            </div>
-                        </div>
-        
+<body>
+    <!-- MENU LATERAL -->
+        {% include 'includes/sidebar.html' %}
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-content">
+        <!-- HEADER -->
+        <div class="header">
+            <h1 class="header-title">Página Inicial</h1>
+            <a class="logo" aria-label="Logo" title="Logo"><img src="{% static 'perfil/img/logo.png' %}" alt="Logo"></a>
+        </div>
+
+        <!-- SAUDAÇÃO -->
+        <div class="greeting">
+            <h2>Olá! Vamos cuidar das suas finanças hoje?</h2>
+            <p>Seu caminho para o controle começa aqui.</p>
+        </div>
+
+        <!-- PRIMEIRO BLOCO -->
+        <div class="dashboard-grid dashboard-grid-3">
+            <!-- Saldo Geral -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Saldo Geral</div>
+                        <div class="card-amount">R$ {{saldo_geral|default:"0"}}</div>
                     </div>
+                    <a class="card-icon" aria-label="Saldo Geral" title="Saldo Geral"><img src="{% static 'perfil/img/saldo-geral.png' %}" alt="Saldo Geral"></a>
+                </div>
+            </div>
+
+            <!-- Entradas -->
+            <div class="card" style="cursor:pointer;transition:all 0.3s" onclick="window.location.href='{% url 'adicionar_entrada' %}'">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Entradas</div>
+                        <div class="card-amount">R$ {{total_entradas|default:"0"}}</div>
+                    </div>
+                    <a class="card-icon" aria-label="Entradas" title="Entradas"><img src="{% static 'perfil/img/entradas.png' %}" alt="Entradas"></a>
+                </div>
+            </div>
+
+            <!-- Saídas -->
+            <div class="card" style="cursor:pointer;transition:all 0.3s" onclick="window.location.href='{% url 'adicionar_saida' %}'">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Saídas</div>
+                        <div class="card-amount">R$ {{total_saidas|default:"0"}}</div>
+                    </div>
+                    <a class="card-icon" aria-label="Saídas" title="Saídas"><img src="{% static 'perfil/img/saidas.png' %}" alt="Saídas"></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEGUNDO BLOCO -->
+        <div class="dashboard-grid dashboard-grid-2">
+            <!-- Objetivo Principal -->
+            <div class="card">
+                <div class="card-title" style="margin-bottom: 15px;">Objetivo principal<br>[economizar]</div>
+                <a href="{% url 'definir_planejamento' %}" class="btn-primary">Editar objetivo</a>
+            </div>
+
+            <!-- Planejamento -->
+            <div class="card">
+                <div class="card-title" style="margin-bottom: 15px;">Planejamento</div>
+                <a href="{% url 'ver_planejamento' %}" class="meta-item">Ver planejamento <span class="meta-arrow">→</span></a>
+                <a href="{% url 'definir_planejamento' %}" class="meta-item">Definir Planejamento <span class="meta-arrow">→</span></a>
+                <a href="{% url 'dashboard' %}" class="meta-item">Dashboard <span class="meta-arrow">→</span></a>
+                <a href="{% url 'gerenciar' %}" class="meta-item">Gerenciar <span class="meta-arrow">→</span></a>
+            </div>
+        </div>
+
+        <!-- TERCEIRO BLOCO -->
+        <div class="dashboard-grid dashboard-grid-2">
+            <!-- Últimos Gastos -->
+            <div class="card">
+                <div class="card-title" style="margin-bottom: 15px;">Suas Contas</div>
+                {% for conta in contas %}
+                <div class="expense-item">
+                    <span>{{conta.apelido}} - R$ {{conta.valor}}</span>
+                    <span class="expense-icon">→</span>
+                </div>
+                {% empty %}
+                <div class="expense-item">
+                    <span>Nenhuma conta cadastrada</span>
+                    <span class="expense-icon">→</span>
+                </div>
+                {% endfor %}
+                <a href="{% url 'gerenciar' %}" class="expense-item">
+                    <span>Ver todas as contas</span>
+                    <span class="expense-icon">→</span>
                 </a>
             </div>
-            <div class="col-md-3">
-                <a style="text-decoration: none; color:white;" href="{% url 'novo_valor' %}">
-                    <div class="card">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <span  class="fonte-destaque">RS {{total_saidas}}</span>
-                            </div>
-                            <div class="col-md">
-                                <img class="icone-setas" src="{% static 'perfil/img/saidas.png' %}" >
-                            </div>
-                        </div> 
-                    </div>
-                </a>
-            </div>
-        </div>
-        <br>
-        <br>
-        <div class="row">
 
-            <div class="col-md-4">
+            <!-- Categorias e Evolução combinadas -->
+            <div style="display: grid; gap: 20px;">
+                <!-- Categorias -->
                 <div class="card">
-                    <div class="saldo">
-                        <span class="fonte-destaque">Saldo total</span>
-                        <br>
-                        <span class="font-light">R$ {{total_contas}}</span>
-                    </div>
-                    <hr class="hr-borda">
-                    <span class="fonte-destaque">Suas contas</span>
-
-                    <div class="div-contas">
-                        
-                        {% for conta in contas %}
-                            <div class="lista-conta">
-                                <span>{{conta.apelido}}</span>
-                                <span class="total-conta">R$ {{conta.valor}}</span>
-                            </div>
-                            <br>
-                        {% endfor %}
-                        
-                        
-                    </div>
-                    <hr class="hr-borda">
-                    <a href="{% url 'gerenciar' %}" class="botao-principal">Gerenciar contas</a>
-                </div>
-                
-            </div>
-
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="row">
-                        <div class="col-md">
-                            <div class="saldo">
-                                <span class="fonte-destaque">Saldo mensal</span>
-                                <br>
-                                <span class="font-light">R$ 0.000,00</span>
-                            </div>
+                    <div class="card-title" style="margin-bottom: 20px;">Categorias de gastos</div>
+                    <canvas id="pieChart"></canvas>
+                    <div class="pie-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background: #7ec8c1;"></div>
+                            <span>Essenciais</span>
                         </div>
-                        <div class="col-md">
-                            <div class="despesa">
-                                <span class="fonte-destaque">Despesa mensal</span>
-                                <br>
-                                <span class="font-light">R$ 0.000,00</span>
-                            </div>
-
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background: #8b8b8b;"></div>
+                            <span>Não essenciais</span>
                         </div>
-
                     </div>
-                    <hr class="hr-borda">
-                    <span class="fonte-destaque">Total livre</span>
-                    <span class="font-light negativo">R$ 0.000,00</span>
-                    <hr class="hr-borda">
-                    <a href="{% url 'view_extrato' %}" class="botao-principal">Gerenciar dados mensais</a>
-                </div>
-            </div>
-
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="saldo">
-                        <span class="fonte-destaque">Planejamento</span>
-                    </div>
-                    <hr class="hr-borda">
-                    <a href="{% url 'definir_planejamento' %}" class="botao-principal">Definir planejamento</a>
-                    <hr>
-                    <a href="{% url 'ver_planejamento' %}" class="botao-principal">Ver planejamento</a>
-                    <hr>
-                    <a href="{% url 'dashboard' %}" class="botao-principal">Dashboard</a>
-                </div>
-            </div>
-            <div class="col-md-8">
-                <div class="card">
-                    <span class="fonte-destaque">Equilibrio financeiro</span>
-                    <hr class="hr-borda">
-                    <p>Gastos essenciais</p>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: {{percentual_gastos_essenciais}}%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <br>
-                    <p>Gastos não essenciais</p>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: {{percentual_gastos_nao_essenciais}}%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <hr class="hr-borda">
-                    <a href="{% url 'gerenciar' %}" class="botao-principal">Alterar categorias essenciais</a>
                 </div>
             </div>
         </div>
-        <br>
-        <div class="row">
-            <div class="col-md-4">
-            </div>
-            
-            <div class="col-md-8">
-                <div class="card">
-                    <span class="fonte-destaque">Gerenciar contas</span>
-                    <hr class="hr-borda">
 
-                    <span class="fonte-destaque">Próximas do vencimento</span>
-                    <span class="fonte-light">3 contas próximas do vencimento</span>
-                    <br>
-                    <span class="fonte-destaque negativo">Vencidas</span>
-                    <span class="fonte-light">0 contas vencidas</span>
-
-                    <hr class="hr-borda">
-                    
-                    <a href="{% url 'ver_contas' %}" class="botao-principal">Ver mais</a>
-
-                </div>
-            </div>
+        <!-- GRÁFICO DE EVOLUÇÃO -->
+        <div class="chart-container">
+            <div class="chart-title">Evolução Financeira — {{ selected_year }}</div>
+            <canvas id="evolutionChart"></canvas>
         </div>
-        <br>
-        <br>
     </div>
-{% endblock %}
+
+    <script>
+        // Avatar fallback: insere um SVG codificado quando a imagem do usuário não existir
+        function avatarFallback(img){
+            img.onerror = null;
+            var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="%23ffffff"><circle cx="12" cy="8" r="3"/><path d="M12 12c-4 0-6 2-6 4v1h12v-1c0-2-2-4-6-4z"/></g></svg>';
+            img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+        }
+
+        // Pie Chart
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [{{percentual_gastos_essenciais|default:"70"}}, {{percentual_gastos_nao_essenciais|default:"30"}}],
+                    backgroundColor: ['#7ec8c1', '#8b8b8b'],
+                    borderColor: 'white',
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Evolution Chart (Line Chart)
+        const evolutionCtx = document.getElementById('evolutionChart').getContext('2d');
+        const evolutionData = {
+            labels: {{ meses_labels|safe }},
+            datasets: [
+                {
+                    label: 'Recebido',
+                    data: {{ entradas_data|safe }},
+                    borderColor: '#14b8a6',
+                    backgroundColor: 'rgba(20, 184, 166, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#14b8a6'
+                },
+                {
+                    label: 'Gasto',
+                    data: {{ gastos_data|safe }},
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#ef4444'
+                }
+            ]
+        };
+
+        new Chart(evolutionCtx, {
+            type: 'line',
+            data: evolutionData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { 
+                        display: true,
+                        position: 'bottom'
+                    },
+                    filler: { propagate: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Valor (R$)' },
+                        ticks: { callback: function(value) { return 'R$ ' + value.toFixed(0); } }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
