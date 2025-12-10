@@ -3,7 +3,6 @@
 # Numus - Sistema web de gestão financeira Finance 
 <img width="100" height="100" alt="logo" src="https://github.com/user-attachments/assets/b0670376-ce79-40e4-9916-14d4c9a12662" />
 
-
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue?style=flat-square&logo=python)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-4.2.5-darkgreen?style=flat-square&logo=django)](https://www.djangoproject.com/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
@@ -125,7 +124,7 @@ Acesse a dashboard para visualizar um resumo de suas finanças:
 
 ---
 
-## 🛣️ Rotas Principais
+##  Rotas Principais
 
 | Rota | Descrição |
 |------|-----------|
@@ -181,6 +180,7 @@ Finance/
 - [ ] Mobile responsivo
 - [ ] Sistema de metas inteligentes com IA
 - [ ] Exportação em múltiplos formatos
+
 
 ---
 
