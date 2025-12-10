@@ -8,9 +8,9 @@ def calcula_total(obj, campo):
 
     return total
 
-def calcula_equilibrio_financeiro():
-    gastos_essenciais = Valores.objects.filter(data__month=datetime.now().month).filter(tipo='S').filter(categoria__essencial=True)
-    gastos_nao_essenciais = Valores.objects.filter(data__month=datetime.now().month).filter(tipo='S').filter(categoria__essencial=False)
+def calcula_equilibrio_financeiro(user):
+    gastos_essenciais = Valores.objects.filter(user=user, data__month=datetime.now().month).filter(tipo='S').filter(categoria__essencial=True)
+    gastos_nao_essenciais = Valores.objects.filter(user=user, data__month=datetime.now().month).filter(tipo='S').filter(categoria__essencial=False)
 
     total_gastos_essenciais = calcula_total(gastos_essenciais, 'valor')
     total_gastos_nao_essenciais = calcula_total(gastos_nao_essenciais, 'valor')

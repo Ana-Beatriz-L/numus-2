@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 
-def get_evolution_data(year: int):
+def get_evolution_data(year: int, user):
     """Return monthly labels and totals for entradas and gastos for a given year."""
     meses_nomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
     meses_labels = []
@@ -24,8 +24,8 @@ def get_evolution_data(year: int):
     for m in range(1, 13):
         meses_labels.append(meses_nomes[m - 1])
 
-        entradas_total = Valores.objects.filter(data__year=year, data__month=m, tipo='E').aggregate(total=Sum('valor'))
-        gastos_total = Valores.objects.filter(data__year=year, data__month=m, tipo='S').aggregate(total=Sum('valor'))
+        entradas_total = Valores.objects.filter(user=user, data__year=year, data__month=m, tipo='E').aggregate(total=Sum('valor'))
+        gastos_total = Valores.objects.filter(user=user, data__year=year, data__month=m, tipo='S').aggregate(total=Sum('valor'))
 
         entradas_data.append(float(entradas_total['total'] or 0))
         gastos_data.append(float(gastos_total['total'] or 0))
@@ -96,25 +96,25 @@ def landing(request):
 def home(request):
     current_year = datetime.now().year
     current_month = datetime.now().month
-    meses_labels, entradas_data, gastos_data = get_evolution_data(current_year)
+    meses_labels, entradas_data, gastos_data = get_evolution_data(current_year, request.user)
 
-    valores = Valores.objects.filter(data__month=current_month)
+    valores = Valores.objects.filter(user=request.user, data__month=current_month)
     entradas = valores.filter(tipo='E')
     saidas = valores.filter(tipo='S')
 
     total_entradas = calcula_total(entradas, 'valor')
     total_saidas = calcula_total(saidas, 'valor')
 
-    contas = Conta.objects.all()
+    contas = Conta.objects.filter(user=request.user)
     total_contas = calcula_total(contas, 'valor')
     
     # Calcular saldo geral: Saldo das contas + Entradas - Saídas
     saldo_geral = float(total_contas) + float(total_entradas) - float(total_saidas)
 
-    percentual_gastos_essenciais, percentual_gastos_nao_essenciais = calcula_equilibrio_financeiro()
+    percentual_gastos_essenciais, percentual_gastos_nao_essenciais = calcula_equilibrio_financeiro(request.user)
 
     # Gastos por categoria (mês atual)
-    queryset = Valores.objects.filter(data__year=current_year, data__month=current_month, tipo='S')
+    queryset = Valores.objects.filter(user=request.user, data__year=current_year, data__month=current_month, tipo='S')
     agg = queryset.values('categoria__categoria').annotate(total=Sum('valor')).order_by('-total')
 
     labels = []
@@ -131,6 +131,9 @@ def home(request):
     palette = ['#10B981', '#06b6d4', '#f97316', '#ef4444', '#60a5fa', '#7c3aed', '#f59e0b', '#14b8a6']
     colors = [palette[i % len(palette)] for i in range(len(labels))]
 
+    # Get user's categorias for planning display
+    categorias = Categorias.objects.filter(user=request.user)
+
     return render(request, 'home.html', {
         'contas' : contas, 
         'total_contas' : total_contas,
@@ -146,13 +149,14 @@ def home(request):
         'labels': labels,
         'values': values,
         'colors': colors,
+        'categorias': categorias,
         })
 
 def gerenciar(request):
-    contas = Conta.objects.all()
-    categorias = Categorias.objects.all()
+    contas = Conta.objects.filter(user=request.user)
+    categorias = Categorias.objects.filter(user=request.user)
     total_contas = calcula_total(contas, 'valor')
-    valores = Valores.objects.select_related('categoria', 'conta').order_by('-data')
+    valores = Valores.objects.filter(user=request.user).select_related('categoria', 'conta').order_by('-data')
 
     return render(request, 'gerenciar.html', {
         'contas' : contas,
@@ -173,6 +177,7 @@ def cadastrar_banco(request):
         return redirect('/perfil/gerenciar/')
 
     conta = Conta(
+        user=request.user,
         apelido=apelido,
         banco=banco,
         tipo=tipo,
@@ -186,7 +191,7 @@ def cadastrar_banco(request):
 
 def deletar_banco(request, id):
     try:
-        conta = Conta.objects.get(id=id)
+        conta = Conta.objects.get(id=id, user=request.user)
         # Deletar todos os valores associados a esta conta
         Valores.objects.filter(conta=conta).delete()
         # Depois deletar a conta
@@ -203,6 +208,7 @@ def cadastrar_categoria(request):
     essencial = bool(request.POST.get('essencial'))
 
     categoria = Categorias(
+        user=request.user,
         categoria=nome,
         essencial=essencial,
         valor_planejado=0,
@@ -215,7 +221,7 @@ def cadastrar_categoria(request):
 	
 
 def update_categoria(request, id):
-    categoria = Categorias.objects.get(id=id)
+    categoria = Categorias.objects.get(id=id, user=request.user)
 
     # If POST, update fields (name, valor_planejado, essencial)
     if request.method == 'POST':
@@ -244,7 +250,7 @@ def update_categoria(request, id):
 
 
 def categorias(request):
-    categorias = Categorias.objects.all()
+    categorias = Categorias.objects.filter(user=request.user)
     return render(request, 'categorias.html', {'categorias': categorias})
 
 
@@ -255,7 +261,7 @@ def deletar_categoria(request, id):
         referer = request.META.get('HTTP_REFERER', '/perfil/gerenciar/')
         return redirect(referer)
 
-    categoria = Categorias.objects.get(id=id)
+    categoria = Categorias.objects.get(id=id, user=request.user)
     categoria.delete()
     messages.add_message(request, constants.SUCCESS, 'Categoria removida com sucesso')
     referer = request.META.get('HTTP_REFERER', '/perfil/gerenciar/')
@@ -282,7 +288,7 @@ def dashboard(request):
         year = datetime.now().year
 
     # aggregate using ORM for performance
-    queryset = Valores.objects.filter(data__year=year, data__month=month, tipo='S')
+    queryset = Valores.objects.filter(user=request.user, data__year=year, data__month=month, tipo='S')
     agg = queryset.values('categoria__categoria').annotate(total=Sum('valor')).order_by('-total')
 
     labels = []
@@ -301,7 +307,7 @@ def dashboard(request):
     colors = [palette[i % len(palette)] for i in range(len(labels))]
 
     # Get evolution data for all 12 months of the year (shared with home)
-    meses_labels, entradas_data, gastos_data = get_evolution_data(year)
+    meses_labels, entradas_data, gastos_data = get_evolution_data(year, request.user)
 
     return render(request, 'dashboard.html', {
         'labels': labels,
@@ -318,8 +324,8 @@ def dashboard(request):
 def relatorios(request):
     # Reuse extrato's listing logic to show values filtered by conta/categoria
     from extrato.models import Valores
-    contas = Conta.objects.all()
-    categorias = Categorias.objects.all()
+    contas = Conta.objects.filter(user=request.user)
+    categorias = Categorias.objects.filter(user=request.user)
 
     conta_get = request.GET.get('conta')
     categoria_get = request.GET.get('categoria')
@@ -331,7 +337,7 @@ def relatorios(request):
     sort = request.GET.get('sort')
     page_number = request.GET.get('page')
 
-    valores = Valores.objects.filter(data__month=datetime.now().month)
+    valores = Valores.objects.filter(user=request.user, data__month=datetime.now().month)
 
     if conta_get:
         valores = valores.filter(conta__id=conta_get)
@@ -417,7 +423,7 @@ def relatorios_export_pdf(request):
     from extrato.models import Valores
 
     # Get data with filters
-    valores = Valores.objects.filter(data__month=datetime.now().month)
+    valores = Valores.objects.filter(user=request.user, data__month=datetime.now().month)
     conta_get = request.GET.get('conta')
     categoria_get = request.GET.get('categoria')
     start_date = request.GET.get('start_date')
@@ -425,9 +431,9 @@ def relatorios_export_pdf(request):
     search = request.GET.get('search')
 
     if conta_get:
-        valores = valores.filter(conta__id=conta_get)
+        valores = valores.filter(conta__id=conta_get, conta__user=request.user)
     if categoria_get:
-        valores = valores.filter(categoria__id=categoria_get)
+        valores = valores.filter(categoria__id=categoria_get, categoria__user=request.user)
     if start_date:
         valores = valores.filter(data__gte=start_date)
     if end_date:
@@ -464,9 +470,10 @@ def relatorios_export_pdf(request):
     
     for valor in valores:
         tipo = 'Saída' if valor.tipo == 'S' else 'Entrada'
+        categoria_nome = str(valor.categoria.categoria) if valor.categoria else 'Sem categoria'
         table_data.append([
             str(valor.conta.apelido),
-            str(valor.categoria.categoria),
+            categoria_nome,
             valor.data.strftime('%d/%m/%Y'),
             tipo,
             f'R$ {valor.valor:.2f}',
@@ -509,15 +516,19 @@ def adicionar_valor(request):
         conta_id = request.POST.get('conta')
         tipo = request.POST.get('tipo')
         
-        if not valor or not categoria_id or not data or not conta_id:
+        if not valor or not data or not conta_id:
             messages.add_message(request, constants.ERROR, 'Preencha todos os campos obrigatórios!')
             return redirect(request.META.get('HTTP_REFERER', '/perfil/home/'))
         
         try:
-            categoria = Categorias.objects.get(id=categoria_id)
-            conta = Conta.objects.get(id=conta_id)
+            categoria = None
+            if categoria_id:
+                categoria = Categorias.objects.get(id=categoria_id, user=request.user)
+            
+            conta = Conta.objects.get(id=conta_id, user=request.user)
             
             novo_valor = Valores(
+                user=request.user,
                 valor=valor,
                 categoria=categoria,
                 descricao=descricao,
@@ -527,6 +538,14 @@ def adicionar_valor(request):
             )
             novo_valor.save()
             
+            # Update conta balance
+            valor_float = float(valor)
+            if tipo == "E":
+                conta.valor += valor_float
+            elif tipo == "S":
+                conta.valor -= valor_float
+            conta.save()
+            
             messages.add_message(request, constants.SUCCESS, f'{"Entrada" if tipo == "E" else "Saída"} registrada com sucesso!')
             return redirect('/perfil/home/')
         except Exception as e:
@@ -534,8 +553,8 @@ def adicionar_valor(request):
             return redirect(request.META.get('HTTP_REFERER', '/perfil/home/'))
     
     tipo_valor = request.GET.get('tipo', 'E')
-    categorias = Categorias.objects.all()
-    contas = Conta.objects.all()
+    categorias = Categorias.objects.filter(user=request.user)
+    contas = Conta.objects.filter(user=request.user)
     
     return render(request, 'adicionar_valor.html', {
         'tipo_valor': tipo_valor,

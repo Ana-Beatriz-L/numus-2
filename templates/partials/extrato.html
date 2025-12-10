@@ -14,7 +14,7 @@
         {% for valor in valores %}
             <tr class="linha">
                 <td width="10%">{{valor.conta}}</td>
-                <td>{{valor.categoria}}</td>
+                <td>{{valor.categoria|default:"Sem categoria"}}</td>
                 <td>{{valor.data}}</td>
                 <td>
                 {% if valor.tipo == 'S'%}

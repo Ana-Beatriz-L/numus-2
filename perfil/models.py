@@ -3,6 +3,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 
 class Categorias(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     categoria = models.CharField(max_length=50)
     essencial = models.BooleanField(default=False)
     valor_planejado = models.FloatField()
@@ -12,7 +13,7 @@ class Categorias(models.Model):
     
     def total_gasto(self):
         from extrato.models import Valores
-        valores = Valores.objects.filter(categoria__id = self.id).filter(data__month=datetime.now().month)
+        valores = Valores.objects.filter(categoria__id=self.id, user=self.user).filter(data__month=datetime.now().month)
         total_valor = 0
         for valor in valores:
             total_valor += valor.valor
@@ -27,6 +28,7 @@ class Categorias(models.Model):
         
 
 class Conta(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     banco_choices = (
         ('NU', 'Nubank'),
         ('CE', 'Caixa econômica'),
@@ -43,7 +45,7 @@ class Conta(models.Model):
     banco = models.CharField(max_length=2, choices=banco_choices)
     tipo = models.CharField(max_length=2, choices=tipo_choices)
     valor = models.FloatField()
-    icone = models.ImageField(upload_to='icones')
+    icone = models.ImageField(upload_to='icones', blank=True, null=True)
 
     def __str__(self):
         return self.apelido

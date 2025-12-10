@@ -8,7 +8,7 @@ from datetime import datetime
 def definir_contas(request):
 
     if request.method == 'GET':
-        categorias = Categorias.objects.all()
+        categorias = Categorias.objects.filter(user=request.user)
         return render(request, 'definir_contas.html', {'categorias': categorias})
     
     else:

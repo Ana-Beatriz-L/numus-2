@@ -79,7 +79,7 @@
             {% for valor in valores %}
                 <tr>
                     <td>{{ valor.conta.apelido }}</td>
-                    <td>{{ valor.categoria.categoria }}</td>
+                    <td>{% if valor.categoria %}{{ valor.categoria.categoria }}{% else %}Sem categoria{% endif %}</td>
                     <td>{{ valor.data|date:"d/m/Y" }}</td>
                     <td>
                         {% if valor.tipo == 'S' %}

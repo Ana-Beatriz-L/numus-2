@@ -49,9 +49,9 @@
                                     <input type="number" name="valor" class="form-control" step="0.01" required placeholder="{% if tipo_valor == 'E' %}Valor recebido...{% else %}Valor gasto...{% endif %}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label>Categoria</label>
-                                    <select name="categoria" class="form-select" required>
-                                        <option value="">-- Selecione --</option>
+                                    <label>Categoria <span style="color:#999;font-size:12px">(opcional)</span></label>
+                                    <select name="categoria" class="form-select">
+                                        <option value="">-- Sem categoria --</option>
                                         {% for categoria in categorias %}
                                             <option value="{{categoria.id}}">{{categoria}}</option>
                                         {% endfor %}

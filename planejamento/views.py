@@ -7,19 +7,19 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 
 def definir_planejamento(request):
-    categorias = Categorias.objects.all()
+    categorias = Categorias.objects.filter(user=request.user)
     return render(request, 'definir_planejamento.html', {'categorias': categorias})
 
 @csrf_exempt
 def update_valor_categoria(request, id):
     novo_valor = json.load(request)['novo_valor']
-    categoria = Categorias.objects.get(id=id)
+    categoria = Categorias.objects.get(id=id, user=request.user)
     categoria.valor_planejado = novo_valor
     categoria.save()
     return JsonResponse({'Status': 'Sucesso'})
 
 def ver_planejamento(request):
-    categorias = Categorias.objects.all()
+    categorias = Categorias.objects.filter(user=request.user)
     return render(request, 'ver_planejamento.html', {'categorias': categorias})
 
 
@@ -31,7 +31,7 @@ def salvar_valor_categoria(request, id):
         except ValueError:
             valor = 0
 
-        categoria = Categorias.objects.get(id=id)
+        categoria = Categorias.objects.get(id=id, user=request.user)
         categoria.valor_planejado = valor
         categoria.save()
         messages.add_message(request, constants.SUCCESS, 'Valor planejado salvo com sucesso.')
@@ -56,7 +56,7 @@ def salvar_valor_categoria_form(request):
             return redirect('definir_planejamento')
 
         try:
-            categoria = Categorias.objects.get(id=int(categoria_id))
+            categoria = Categorias.objects.get(id=int(categoria_id), user=request.user)
             categoria.valor_planejado = valor
             categoria.save()
             messages.add_message(request, constants.SUCCESS, 'Valor planejado salvo com sucesso.')
@@ -70,7 +70,7 @@ def salvar_valor_categoria_form(request):
 def deletar_categoria(request, id):
     if request.method == 'POST':
         try:
-            categoria = Categorias.objects.get(id=id)
+            categoria = Categorias.objects.get(id=id, user=request.user)
             categoria_nome = categoria.categoria
             categoria.delete()
             messages.add_message(request, constants.SUCCESS, f'Categoria "{categoria_nome}" deletada com sucesso.')

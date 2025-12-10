@@ -14,8 +14,8 @@ from io import BytesIO
 def novo_valor(request):
 
     if request.method == "GET":
-        contas = Conta.objects.all()
-        categorias = Categorias.objects.all()
+        contas = Conta.objects.filter(user=request.user)
+        categorias = Categorias.objects.filter(user=request.user)
         return render(request, 'novo_valor.html', {'contas': contas, 'categorias': categorias})
     
     elif request.method == "POST":
@@ -28,9 +28,11 @@ def novo_valor(request):
 
         valor = valor.replace(',', '.')
 
+        # Categoria é opcional, apenas atribui se foi selecionada
         valores = Valores(
+            user=request.user,
             valor=valor,
-            categoria_id=categoria,
+            categoria_id=categoria if categoria else None,
             descricao=descricao,
             data=data,
             conta_id=conta,
@@ -54,13 +56,13 @@ def novo_valor(request):
         return redirect('/extrato/novo_valor')
     
 def view_extrato(request):
-    contas = Conta.objects.all()
-    categorias = Categorias.objects.all()
+    contas = Conta.objects.filter(user=request.user)
+    categorias = Categorias.objects.filter(user=request.user)
 
     conta_get = request.GET.get('conta')
     categoria_get = request.GET.get('categoria')
 
-    valores = Valores.objects.filter(data__month=datetime.now().month)
+    valores = Valores.objects.filter(user=request.user, data__month=datetime.now().month)
 
     if conta_get:
         valores = valores.filter(conta__id=conta_get)
