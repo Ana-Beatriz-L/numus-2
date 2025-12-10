@@ -1,6 +1,6 @@
 <div align="center">
   
-# 💰 Finance - Gestão de Finanças Pessoais
+# Numus - Sistema web de gestão financeira Finance 
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue?style=flat-square&logo=python)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-4.2.5-darkgreen?style=flat-square&logo=django)](https://www.djangoproject.com/)
@@ -14,7 +14,7 @@ Uma aplicação web moderna para gestão de finanças pessoais, desenvolvida com
 
 ---
 
-## ✨ Features
+##  Features
 
 - 📊 **Dashboard Intuitivo** - Visualize suas finanças em um só lugar
 - 💳 **Gerenciamento de Contas** - Controle múltiplas contas bancárias
@@ -25,7 +25,7 @@ Uma aplicação web moderna para gestão de finanças pessoais, desenvolvida com
 
 ---
 
-## 🚀 Tecnologias
+##  Tecnologias
 
 <div align="center">
 
@@ -41,7 +41,7 @@ Uma aplicação web moderna para gestão de finanças pessoais, desenvolvida com
 
 ---
 
-## 📋 Pré-requisitos
+##  Pré-requisitos
 
 - Python 3.9+
 - pip (gerenciador de pacotes Python)
@@ -49,7 +49,7 @@ Uma aplicação web moderna para gestão de finanças pessoais, desenvolvida com
 
 ---
 
-## 🔧 Instalação
+##  Instalação
 
 ### 1. Clone o repositório
 
@@ -93,7 +93,7 @@ Acesse a aplicação em `http://127.0.0.1:8000/`
 
 ---
 
-## 💡 Como Usar
+##  Como Usar
 
 ### Página Inicial
 Acesse a dashboard para visualizar um resumo de suas finanças:
@@ -139,7 +139,7 @@ Acesse a dashboard para visualizar um resumo de suas finanças:
 
 ---
 
-## 📂 Estrutura do Projeto
+##  Estrutura do Projeto
 
 ```
 Finance/
@@ -160,20 +160,20 @@ Finance/
 
 ---
 
-## 🐛 Status do Projeto
+##  Status do Projeto
 
-### ✅ Concluído
+###  Concluído
 - Dashboard e visualização de dados
 - CRUD de contas, categorias e transações
 - Filtros avançados de extrato
 - Sistema de categorias
 
-### 🔄 Em Progresso
+###  Em Progresso
 - Integração com PDF (WeasyPrint)
 - Melhorias na interface
 - Relatórios avançados
 
-### 📝 Melhorias Futuras
+###  Melhorias Futuras
 - [ ] Gráficos interativos com Chart.js
 - [ ] Sincronização com contas bancárias reais
 - [ ] Mobile responsivo
@@ -182,13 +182,13 @@ Finance/
 
 ---
 
-## 👤 Autor
+##  Autor
 
 Desenvolvido como projeto educacional no evento **Pythonando**.
 
 ---
 
-## 📝 Licença
+##  Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
