@@ -85,7 +85,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <a href="#" id="confirmDeleteCategoryBtn" class="btn btn-danger">Deletar</a>
+                    <form id="deleteCategoryForm" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Deletar</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -101,7 +104,10 @@
                 const categoriaNome = button.getAttribute('data-categoria-nome');
                 
                 document.getElementById('categoriaNome').textContent = categoriaNome;
-                document.getElementById('confirmDeleteCategoryBtn').href = `/perfil/deletar_categoria/${categoriaId}`;
+                
+                // Atualizar a action do formulário
+                const form = document.getElementById('deleteCategoryForm');
+                form.action = `/perfil/deletar_categoria/${categoriaId}`;
                 
                 const modal = new bootstrap.Modal(document.getElementById('confirmDeleteCategoryModal'));
                 modal.show();
